@@ -12,10 +12,10 @@ To run this application you need to have [npm](http://npmjs.com) installed on yo
 
 ```bash
 # Clone repository
-$ git clone https://github.com/aniawala/efiche-web-app
+$ git clone https://github.com/aniawala/crypto-viewer
 
 # Enter the repository
-$ cd efiche-web-app
+$ cd crypto-viewer
 
 # Install dependencies
 $ npm install

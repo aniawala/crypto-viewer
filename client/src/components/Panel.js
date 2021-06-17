@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -10,6 +10,7 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import Avatar from "@material-ui/core/Avatar";
 import Tooltip from "@material-ui/core/Tooltip";
+import Button from "@material-ui/core/Button";
 import { getCryptocurrencies } from "../api/requests";
 
 const columns = [
@@ -28,7 +29,7 @@ const columns = [
       }),
   },
   {
-    id: "marketCap",
+    id: "market_cap",
     label: "Market Cap",
     align: "right",
     format: (value) =>
@@ -41,7 +42,7 @@ const columns = [
       "The total market value of a cryptocurrency's circulating supply.",
   },
   {
-    id: "volume",
+    id: "volume_24h",
     label: "Volume(24h)",
     align: "right",
     format: (value) =>
@@ -55,26 +56,23 @@ const columns = [
   },
 ];
 
-const StyledTableCell = withStyles((theme) => ({
-  root: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-    fontWeight: 600,
-  },
-}))(TableCell);
-
 const useStyles = makeStyles({
   root: {
-    maxWidth: 850,
-    maxHeight: 500,
+    width: 850,
+    maxHeight: 550,
   },
   table: {
     height: "100%",
     width: "100%",
   },
+  tableCell: {
+    backgroundColor: "black",
+    color: "white",
+    fontWeight: 600,
+  },
 });
 
-const Panel = () => {
+const Panel = ({ cryptosAmount, filterBy, order }) => {
   const classes = useStyles();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -91,33 +89,49 @@ const Panel = () => {
 
   useEffect(() => {
     const fetchAndCacheRows = async () => {
-      const [cryptocurrencies, error] = await getCryptocurrencies();
+      const params = {
+        limit: cryptosAmount,
+        sort: filterBy,
+        sort_dir: order,
+      };
+      const [cryptocurrencies, error] = await getCryptocurrencies(params);
       if (error) alert(error);
-      else setRows(cryptocurrencies.data);
+      else {
+        setRows(cryptocurrencies.data);
+      }
     };
+    setPage(0);
     fetchAndCacheRows();
-  }, []);
+  }, [cryptosAmount, filterBy, order]);
 
   return (
     <Paper className={classes.root}>
       <TableContainer component={Paper} className={classes.table}>
-        <Table stickyHeader aria-label="sticky table">
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               {columns.map((column) => {
                 if (column.description) {
                   return (
-                    <Tooltip title={column.description}>
-                      <StyledTableCell key={column.id} align={column.align}>
+                    <Tooltip title={column.description} key={column.id}>
+                      <TableCell
+                        key={column.id}
+                        align={column.align}
+                        className={classes.tableCell}
+                      >
                         {column.label}
-                      </StyledTableCell>
+                      </TableCell>
                     </Tooltip>
                   );
                 } else {
                   return (
-                    <StyledTableCell key={column.id} align={column.align}>
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      className={classes.tableCell}
+                    >
                       {column.label}
-                    </StyledTableCell>
+                    </TableCell>
                   );
                 }
               })}
@@ -140,7 +154,18 @@ const Panel = () => {
                             <Avatar alt={row[column.id]} src={row["logo"]} />
                           </TableCell>
                         );
-                      else
+                      else if (column.id === "name") {
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            <Button
+                              href={row["website"]}
+                              style={{ textTransform: "none" }}
+                            >
+                              {value}
+                            </Button>
+                          </TableCell>
+                        );
+                      } else
                         return (
                           <TableCell key={column.id} align={column.align}>
                             {column.format ? column.format(value) : value}

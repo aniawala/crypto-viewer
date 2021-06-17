@@ -33,15 +33,16 @@ def extract_required_data(data):
         "name": data["name"],
         "symbol": data["symbol"],
         "price": data["quote"]["USD"]["price"],
-        "marketCap": data["quote"]["USD"]["market_cap"],
-        "volume": data["quote"]["USD"]["volume_24h"]
+        "market_cap": data["quote"]["USD"]["market_cap"],
+        "volume_24h": data["quote"]["USD"]["volume_24h"]
     }
 
 
 def extract_required_info(info):
+    website = info["urls"]["website"][0] if info["urls"]["website"] else ""
     return {
         "logo": info["logo"],
-        "website": info["urls"]["website"][0]
+        "website": website
     }
 
 
@@ -62,9 +63,16 @@ def get_ids(cryptocurrencies):
     return ids
 
 
-async def get_latest_listings(session):
-    url = API_BASE_URL + '/listings/latest'
-    async with session.get(url) as response:
+def parse_query_params(query_params):
+    params = {}
+    for key, value in query_params:
+        params[key] = value
+    return params
+
+
+async def get_latest_listings(session, params):
+    url = API_BASE_URL + f'/listings/latest'
+    async with session.get(url, params=params) as response:
         payload = await response.json()
         return payload
 
@@ -80,16 +88,18 @@ async def get_cryptocurrencies_info(session, ids):
 @api.get('/cryptocurrencies')
 async def get_cryptocurrencies(request):
     async with aiohttp.ClientSession(headers=REQUEST_HEADERS) as session:
-        latest_listings = await get_latest_listings(session)
+        params = parse_query_params(request.query_args)
+        latest_listings = await get_latest_listings(session, params)
         cryptocurrencies = format_data(latest_listings)
 
         ids = get_ids(cryptocurrencies)
         cryptocurrencies_info = await get_cryptocurrencies_info(session, ids)
-        
+
         for cryptocurrency in cryptocurrencies["data"]:
-            info = extract_required_info(cryptocurrencies_info["data"][str(cryptocurrency["id"])])
+            info = extract_required_info(
+                cryptocurrencies_info["data"][str(cryptocurrency["id"])])
             cryptocurrency.update(info)
-        
+
         return json(cryptocurrencies, headers=RESPONSE_HEADERS)
 
 

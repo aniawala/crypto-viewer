@@ -5,3 +5,15 @@ body,
   margin: 0;
   height: 100vh;
 }
+
+::-webkit-scrollbar {
+  width: 0.8em;
+}
+::-webkit-scrollbar-track-piece {
+  background: #121212;
+}
+::-webkit-scrollbar-thumb:vertical,
+::-webkit-scrollbar-thumb:horizontal {
+  background: #303030;
+  border-radius: 0.5em;
+}

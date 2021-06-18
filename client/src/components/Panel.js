@@ -11,17 +11,19 @@ import Paper from "@material-ui/core/Paper";
 import Avatar from "@material-ui/core/Avatar";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
+import InfoIcon from "@material-ui/icons/Info";
 import { getCryptocurrencies } from "../api/requests";
 
 const columns = [
-  { id: "number", label: "#" },
-  { id: "logo", label: "" },
-  { id: "name", label: "Name" },
-  { id: "symbol", label: "Symbol" },
+  { id: "number", label: "#", align: "left", minWidth: 25 },
+  { id: "logo", label: "", align: "left", minWidth: 50 },
+  { id: "name", label: "Name", align: "left", minWidth: 125 },
+  { id: "symbol", label: "Symbol", align: "left", minWidth: 50 },
   {
     id: "price",
     label: "Price",
     align: "right",
+    minWidth: 75,
     format: (value) =>
       value.toLocaleString("en-US", {
         style: "currency",
@@ -32,6 +34,7 @@ const columns = [
     id: "market_cap",
     label: "Market Cap",
     align: "right",
+    minWidth: 125,
     format: (value) =>
       value.toLocaleString("en-US", {
         style: "currency",
@@ -45,6 +48,7 @@ const columns = [
     id: "volume_24h",
     label: "Volume(24h)",
     align: "right",
+    minWidth: 125,
     format: (value) =>
       value.toLocaleString("en-US", {
         style: "currency",
@@ -56,23 +60,39 @@ const columns = [
   },
 ];
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-    width: 850,
-    maxHeight: 550,
-  },
-  table: {
     height: "100%",
     width: "100%",
   },
-  tableCell: {
-    backgroundColor: "black",
-    color: "white",
+  tableContainer: {
+    [theme.breakpoints.down("md")]: {
+      maxHeight: 200,
+      maxWidth: 400,
+    },
+    [theme.breakpoints.between("md", "lg")]: {
+      maxHeight: 300,
+      maxWidth: 500,
+    },
+    [theme.breakpoints.between("lg", "xl")]: {
+      maxHeight: 350,
+      maxWidth: 700,
+    },
+    [theme.breakpoints.up("xl")]: {
+      maxHeight: 500,
+      maxWidth: 800,
+    },
+  },
+  tableHeadCell: {
+    backgroundColor: theme.palette.grey.light,
     fontWeight: 600,
   },
-});
+  tableCell: {
+    padding: "10px 5px",
+  },
+}));
 
-const Panel = ({ cryptosAmount, filterBy, order }) => {
+const Panel = ({ cryptosAmount, sortBy, order }) => {
   const classes = useStyles();
   const [rows, setRows] = useState([]);
   const [page, setPage] = useState(0);
@@ -91,7 +111,7 @@ const Panel = ({ cryptosAmount, filterBy, order }) => {
     const fetchAndCacheRows = async () => {
       const params = {
         limit: cryptosAmount,
-        sort: filterBy,
+        sort: sortBy,
         sort_dir: order,
       };
       const [cryptocurrencies, error] = await getCryptocurrencies(params);
@@ -102,33 +122,36 @@ const Panel = ({ cryptosAmount, filterBy, order }) => {
     };
     setPage(0);
     fetchAndCacheRows();
-  }, [cryptosAmount, filterBy, order]);
+  }, [cryptosAmount, sortBy, order]);
 
   return (
     <Paper className={classes.root}>
-      <TableContainer component={Paper} className={classes.table}>
-        <Table stickyHeader>
+      <TableContainer component={Paper} className={classes.tableContainer}>
+        <Table stickyHeader size="small" padding="none">
           <TableHead>
             <TableRow>
               {columns.map((column) => {
                 if (column.description) {
                   return (
-                    <Tooltip title={column.description} key={column.id}>
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        className={classes.tableCell}
-                      >
-                        {column.label}
-                      </TableCell>
-                    </Tooltip>
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      className={`${classes.tableHeadCell} ${classes.tableCell}`}
+                      style={{ minWidth: column.minWidth }}
+                    >
+                      {column.label}
+                      <Tooltip title={column.description} key={column.id}>
+                        <InfoIcon fontSize="small" />
+                      </Tooltip>
+                    </TableCell>
                   );
                 } else {
                   return (
                     <TableCell
                       key={column.id}
                       align={column.align}
-                      className={classes.tableCell}
+                      className={`${classes.tableHeadCell} ${classes.tableCell}`}
+                      style={{ minWidth: column.minWidth }}
                     >
                       {column.label}
                     </TableCell>
@@ -150,13 +173,21 @@ const Panel = ({ cryptosAmount, filterBy, order }) => {
                           : row[column.id];
                       if (column.id === "logo")
                         return (
-                          <TableCell key={column.id} align={column.align}>
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            className={classes.tableCell}
+                          >
                             <Avatar alt={row[column.id]} src={row["logo"]} />
                           </TableCell>
                         );
                       else if (column.id === "name") {
                         return (
-                          <TableCell key={column.id} align={column.align}>
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            className={classes.tableCell}
+                          >
                             <Button
                               href={row["website"]}
                               style={{ textTransform: "none" }}
@@ -167,7 +198,11 @@ const Panel = ({ cryptosAmount, filterBy, order }) => {
                         );
                       } else
                         return (
-                          <TableCell key={column.id} align={column.align}>
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            className={classes.tableCell}
+                          >
                             {column.format ? column.format(value) : value}
                           </TableCell>
                         );

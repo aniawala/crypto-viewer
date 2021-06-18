@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -7,16 +8,15 @@ import FormControl from "@material-ui/core/FormControl";
 import MenuItem from "@material-ui/core/MenuItem";
 import Select from "@material-ui/core/Select";
 import Tooltip from "@material-ui/core/Tooltip";
-import { makeStyles } from "@material-ui/core/styles";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import FilterValue from "../common/FilterValue";
+import SortKey from "../common/SortKey";
 import OrderType from "../common/OrderType";
 import {
   defaultCryptosAmount,
-  defaultFilterValue,
+  defaultSortKey,
   defaultOrderType,
   maxCryptos,
   minCryptos,
@@ -25,31 +25,31 @@ import {
 
 const useStyles = makeStyles({
   root: {
-    width: 840,
+    // width: 600,
   },
   item: {
-    width: 200,
+    width: 130,
   },
 });
 
-const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
+const Menu = ({ setCryptosAmount, setSortBy, setOrder }) => {
   const classes = useStyles();
   const [tempCryptosAmount, setTempCryptosAmount] =
     useState(defaultCryptosAmount);
-  const [tempFilterBy, setTempFilterBy] = useState(defaultFilterValue);
+  const [tempSortBy, setTempSortBy] = useState(defaultSortKey);
   const [tempOrder, setTempOrder] = useState(defaultOrderType);
 
-  const handleInputChange = (event) => {
+  const handleCryptosAmountChange = (event) => {
     let newAmount;
     if (event.target.value === "") newAmount = "";
     else if (event.target.value > maxCryptos) newAmount = maxCryptos;
-    else if (event.target.value < 0) newAmount = 1;
+    else if (event.target.value <= 0) newAmount = 1;
     else newAmount = Number(event.target.value);
     setTempCryptosAmount(newAmount);
   };
 
-  const handleFilterChange = (event) => {
-    setTempFilterBy(event.target.value);
+  const handleSortByChange = (event) => {
+    setTempSortBy(event.target.value);
   };
 
   const handleOrderChange = (event, newOrder) => {
@@ -59,7 +59,7 @@ const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
   const handleApplyFilters = (event) => {
     event.preventDefault();
     setCryptosAmount(tempCryptosAmount);
-    setFilterBy(tempFilterBy);
+    setSortBy(tempSortBy);
     setOrder(tempOrder);
   };
 
@@ -67,7 +67,8 @@ const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
     <Grid
       container
       direction="row"
-      justify="space-between"
+      spacing={3}
+      justify="center"
       alignItems="center"
       className={classes.root}
     >
@@ -77,7 +78,7 @@ const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
           type="number"
           color="secondary"
           value={tempCryptosAmount}
-          onChange={handleInputChange}
+          onChange={handleCryptosAmountChange}
           InputLabelProps={{
             shrink: true,
           }}
@@ -88,20 +89,26 @@ const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
           }}
           variant="filled"
           className={classes.item}
+          size="small"
         />
       </Grid>
       <Grid item>
-        <FormControl variant="filled" fullWidth className={classes.item}>
-          <InputLabel id="filter-label">Filter by:</InputLabel>
+        <FormControl
+          size="small"
+          variant="filled"
+          fullWidth
+          className={classes.item}
+        >
+          <InputLabel id="sort-label">Sort by:</InputLabel>
           <Select
-            labelId="filter-label"
-            value={tempFilterBy}
-            onChange={handleFilterChange}
+            labelId="sort-label"
+            value={tempSortBy}
+            onChange={handleSortByChange}
             color="secondary"
           >
-            <MenuItem value={FilterValue.PRICE}>Price</MenuItem>
-            <MenuItem value={FilterValue.MARKETCAP}>Market Cap</MenuItem>
-            <MenuItem value={FilterValue.VOLUME}>Volume</MenuItem>
+            <MenuItem value={SortKey.PRICE}>Price</MenuItem>
+            <MenuItem value={SortKey.MARKETCAP}>Market Cap</MenuItem>
+            <MenuItem value={SortKey.VOLUME}>Volume</MenuItem>
           </Select>
         </FormControl>
       </Grid>
@@ -113,12 +120,12 @@ const Menu = ({ setCryptosAmount, setFilterBy, setOrder }) => {
         >
           <ToggleButton value={OrderType.ASCENDING}>
             <Tooltip title="Ascending">
-              <ArrowUpwardIcon fontSize="large" color="secondary" />
+              <ArrowUpwardIcon color="secondary" />
             </Tooltip>
           </ToggleButton>
           <ToggleButton value={OrderType.DESCENDING}>
             <Tooltip title="Descending">
-              <ArrowDownwardIcon fontSize="large" color="secondary" />
+              <ArrowDownwardIcon color="secondary" />
             </Tooltip>
           </ToggleButton>
         </ToggleButtonGroup>

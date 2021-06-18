@@ -10,7 +10,7 @@
 
 To run this application you need to:
 
-- create account in [coinmarketcap](https://coinmarketcap.com/api/), copy your api key and set it as environmental variable with name API_KEY
+- create account in [coinmarketcap](https://coinmarketcap.com/api/), copy your api key and set it as environmental variable with name API_KEY (please see instructions below)
 - have [npm](http://npmjs.com) installed on your computer,
 - have [docker](https://www.docker.com/) installed on your computer,
 
@@ -23,7 +23,7 @@ $ cd crypto-viewer/server
 
 # Start server
 $ docker build --tag crypto-viewer .
-$ docker run -d -p 3001:3001 --rm crypto-viewer:latest
+$ docker run -d -p 3001:3001 -e API_KEY=<YOUR_API_KEY> --rm crypto-viewer:latest
 
 # Enter the client
 $ cd crypto-viewer/client

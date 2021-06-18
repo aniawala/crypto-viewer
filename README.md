@@ -8,14 +8,25 @@
 
 ## How to use
 
-To run this application you need to have [npm](http://npmjs.com) installed on your computer.
+To run this application you need to:
+
+- create account in [coinmarketcap](https://coinmarketcap.com/api/), copy your api key and set it as environmental variable with name API_KEY
+- have [npm](http://npmjs.com) installed on your computer,
+- have [docker](https://www.docker.com/) installed on your computer,
 
 ```bash
 # Clone repository
 $ git clone https://github.com/aniawala/crypto-viewer
 
-# Enter the repository
-$ cd crypto-viewer
+# Enter the server
+$ cd crypto-viewer/server
+
+# Start server
+$ docker build --tag crypto-viewer .
+$ docker run -d -p 3001:3001 --rm crypto-viewer:latest
+
+# Enter the client
+$ cd crypto-viewer/client
 
 # Install dependencies
 $ npm install
